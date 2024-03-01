@@ -62,7 +62,8 @@ type VirtualWindowType =
   | "newbie_guide"
   | "blank"
   | "dogvertiser"
-  | "shutdown";
+  | "shutdown"
+  ;
 
 type VirtualWindowSubtype = "openchat" | "unknown" | "none" | "dogvertiser";
 

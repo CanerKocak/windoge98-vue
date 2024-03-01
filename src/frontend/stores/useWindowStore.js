@@ -9,7 +9,7 @@ import defaultAppIcon from "../assets/default_app_icon.png";
 import startIcon from "../assets/start-icon.png";
 import NewbieGuide from "../components/NewbieGuide.vue";
 import DogVertiser from "../components/DogVertiser.vue";
-import NFToverviewWindow from "../components/NFToverview.vue";
+import NftOverview from "../components/NftOverview.vue";
 import { v4 as uuidv4 } from 'uuid';
 
 export const useWindowStore = defineStore("windowStore", {
@@ -163,7 +163,7 @@ export const useWindowStore = defineStore("windowStore", {
         case "shutdown":
           return { component: ShutDownWindow, props: {} };
         case "NFToverview":
-          return { component: NFToverviewWindow, props: {} };
+          return { component: NftOverview, props: {} };
         case "dogvertiser":
           return { component: DogVertiser, props: {} };
         default:
@@ -188,5 +188,5 @@ export const useWindowStore = defineStore("windowStore", {
         storage: sessionStorage, // You can also use sessionStorage
       },
     ],
-  }
+  },
 });
