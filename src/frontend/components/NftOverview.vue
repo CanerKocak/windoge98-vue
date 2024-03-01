@@ -10,12 +10,11 @@ const authStore = useAuthStore();
 const { isAuthenticated } = storeToRefs(authStore);
 const currentTab = ref("overview");
 const selectedProject = ref("Cards");
-const selectedNft = ref(null); // Store the selected NFT
+const selectedNft = ref(null);
 
-// Function to handle NFT selection
 const selectNft = (nft: any) => {
-  selectedNft.value = nft; // Set the selected NFT
-  currentTab.value = 'nftDetail'; // Change tab to show NFT details
+  selectedNft.value = nft;
+  currentTab.value = 'nftDetail';
 };
 
 
@@ -48,7 +47,7 @@ onMounted(() => {
         <div class="content-container" :key="currentTab">
           <div v-if="currentTab === 'overview'" class="overview-container">
             <section class="main-content">
-              <h2>{{ selectedProject }}</h2>
+              <h1 class="project-title">{{ selectedProject }}</h1>
               <NftCollection @selectNft="selectNft" :selectedProject="selectedProject" />
             </section>
           </div>
@@ -74,10 +73,16 @@ header {
   padding: 20px;
   background-color: #000080;
   color: white;
-  height: 24px;
+  height: 18px;
 } h1 {
   margin: 0;
   font-size: 24px;
+}
+
+.project-title {
+  margin-left: 5px;
+  border-bottom: 2px solid black;
+  margin-bottom: 20px;
 }
 
 nav {
@@ -93,7 +98,7 @@ nav {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+.fade-enter, .fade-leave-to  {
   opacity: 0;
 }
 

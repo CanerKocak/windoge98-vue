@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { defineProps, watch, ref, defineEmits} from 'vue';
 
+import walletIcon from "../../assets/wallet.png";
+import cardsIcon from "../../assets/playing_cards.png";
+import moonMergeIcon from "../../assets/merge_icon.png";
+
 const emit = defineEmits(['selectNft']);
 
 interface Nft {
@@ -14,9 +18,9 @@ const props = defineProps<{
 }>();
 
 const allNfts: Nft[] = [
-  { id: 1, name: "NFT 1", imageUrl: import.meta.env.BASE_URL + 'nft1_overview_icon.png' },
-  { id: 2, name: "NFT 2", imageUrl: import.meta.env.BASE_URL + 'nft2_overview_icon.png' },
-  { id: 3, name: "NFT 3", imageUrl: import.meta.env.BASE_URL + 'nft3_overview_icon.png' },
+  { id: 1, name: "NFT 1", imageUrl: walletIcon },
+  { id: 2, name: "NFT 2", imageUrl: cardsIcon },
+  { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
 ];
 
 const randomNfts = ref<Nft[]>([]);
@@ -52,39 +56,49 @@ watch(() => props.selectedProject, () => {
 <style scoped>
 .nft-gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    overflow-y: auto;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 0.5fr));
+    gap: 15px;
+    padding: 20px;
+    background-color: #0a0a0a;
+    border-radius: 8px;
     max-height: 375px;
-    padding: 5px;
+    overflow-y: auto;
 }
 
 .nft-item {
-    width: 150px;
-    height: 200px;
-    border: 2px solid #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, #121212, #1d1d1d);
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     cursor: pointer;
 }
 
 .nft-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
 }
 
 .nft-container img {
-    width: 100%;
-    height: auto;
-    border-bottom: 1px solid #000000;
-    margin-bottom: 5px;
+    width: auto;
+    height: 120px;
+    padding: 10px;
+    padding-bottom: 42px;
+    padding-top: 42px;
+    object-fit: cover;
 }
 
 .nft-container p {
-    color: #ffffff;
+    color: #00fffc;
     text-align: center;
-    margin: 0;
-    font-family: 'MS Sans Serif', sans-serif;
-    font-size: 12px;
+    margin-top: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .fade-in {
@@ -99,4 +113,5 @@ watch(() => props.selectedProject, () => {
         opacity: 1;
     }
 }
+
 </style>
