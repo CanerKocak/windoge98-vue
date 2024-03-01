@@ -27,6 +27,7 @@ import coinGeckoIcon from "../assets/coingecko_logo.png";
 import cmcIcon from "../assets/cmc_logo.png";
 import mergeIcon from "../assets/merge_icon.png";
 import keysIcon from "../assets/keys-4.png";
+import nftsIcon from "../assets/nft_overview_icon.png";
 import { initialise } from "@open-ic/openchat-xframe";
 import adsIcon from "../assets/advertise_icon.png";
 
@@ -124,6 +125,14 @@ export const useMenuItemStore = defineStore("startMenu", () => {
             iconHeight: 30,
             height: 600,
             virtualWindow: "iframe",
+            subType: "unknown",
+            visible: true,
+          },
+          {
+            name: "NFTs",
+            icon: nftsIcon,
+            iconHeight: 30,
+            virtualWindow: "NFToverview",
             subType: "unknown",
             visible: true,
           },
