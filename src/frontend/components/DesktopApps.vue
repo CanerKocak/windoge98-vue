@@ -242,10 +242,7 @@ function onMouseUp(): void {
 
 function handleDoubleClick(app: MenuItem): void {
   selectedApps.value = [];
-  if (app.url) {
-    console.log(`Opening ${app.url}`);
-    openNewWindow(app);
-  }
+  openNewWindow(app);
 }
 
 onMounted(() => {
