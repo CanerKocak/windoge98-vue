@@ -4,6 +4,7 @@
   <RouterView />
 </template>
 
+
 <style scoped>
 .desktop-icon {
   position: absolute;
