@@ -9,7 +9,7 @@ import NftDetail from "./nfts/NftDetail.vue";
 const authStore = useAuthStore();
 const { isAuthenticated } = storeToRefs(authStore);
 const currentTab = ref("overview");
-const selectedProject = ref("Cards");
+const selectedProject = ref("My NFTs");
 const selectedNft = ref(null);
 
 const selectNft = (nft: any) => {
@@ -32,8 +32,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="window" v-if="isAuthenticated">
-
     <header>
       <h1>Windoge Collections</h1>
       <nav>
@@ -56,11 +54,9 @@ onMounted(() => {
       </transition>
     </div>
 
-  </div>
-
-  <div v-else class="login-container">
+  <!-- <div v-else class="login-container">
     <button @click="authStore.login">Sign In</button>
-  </div>
+  </div> -->
 
 </template>
 
@@ -80,9 +76,11 @@ header {
 }
 
 .project-title {
-  margin-left: 5px;
+  margin-left: 20px;
+  margin-bottom: 5px;
+  margin-top: 7px;
   border-bottom: 2px solid black;
-  margin-bottom: 20px;
+  transition: all 0.5s ease;
 }
 
 nav {
@@ -90,21 +88,16 @@ nav {
   gap: 10px;
 }
 
-.app-container, .login-container {
-  width: 100%;
-  height: 100%;
-}
-
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
+
 .fade-enter, .fade-leave-to  {
   opacity: 0;
 }
 
 .app-container {
   display: flex;
-  width: 100%;
   transition: all 0.5s ease;
 }
 
@@ -114,14 +107,14 @@ nav {
 }
 
 .overview-container {
-  display: flex;
   flex-direction: column;
   transition: all 0.5s ease;
 }
 
 .main-content {
-  padding: 20px;
   animation: slideIn 0.5s ease-out;
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
 @keyframes slideIn {

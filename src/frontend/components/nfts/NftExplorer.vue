@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import walletIcon from "../../assets/wallet.png";
 import cardsIcon from "../../assets/playing_cards.png";
 import moonMergeIcon from "../../assets/merge_icon.png";
 import dogeSweeperIcon from "../../assets/dogesweeper.png";
 
-
-defineProps({
-  selectedProject: String,
-});
+const props = defineProps<{
+  selectedProject: string;
+}>();
 
 const emit = defineEmits(['selectProject']);
 
@@ -19,18 +18,25 @@ const projects = ref([
   { name: 'DogeSweeper', icon: dogeSweeperIcon },
 ]);
 
-const selectProject = (project: any) => {
-  emit('selectProject', project);
-};
+const selectedIndex = ref(0);
 
+watch(() => props.selectedProject, (newVal) => {
+  const index = projects.value.findIndex(project => project.name === newVal);
+  selectedIndex.value = index;
+});
+
+const selectProject = (projectName: string) => {
+  emit('selectProject', projectName);
+};
 </script>
 
 <template>
   <aside class="nft-project-tree">
     <ul>
-      <li v-for="project in projects" :key="project.name" @click="selectProject(project.name)"
-        :class="{ selected: project.name === selectedProject }">
-        <img :src="`${project.icon}`" :alt="`${project.name} icon`" class="project-icon">
+      <div class="selection-indicator" :style="{ top: `${selectedIndex * 48}px` }"></div>
+      <li v-for="(project,) in projects" :key="project.name" @click="selectProject(project.name)"
+        :class="{ selected: project.name === props.selectedProject }">
+        <img :src="project.icon" :alt="`${project.name} icon`" class="project-icon">
         {{ project.name }}
       </li>
     </ul>
@@ -38,67 +44,62 @@ const selectProject = (project: any) => {
 </template>
 
 <style scoped>
-
-.nft-project-tree {
-  background-color: #000080;
-  padding: 5px;
-  overflow-y: auto;
-  color: #ffffff;
+.selected {
+  color: white;
+  transition: 0.5s ease;
+}
+.nft-project-tree,
+.nft-project-tree ul {
+  position: relative;
+  margin: 0;
+  color: #000000;
   border-right: 2px solid #000000;
   min-height: 100%;
-  min-width: 145px;
-  max-width: 145px;
-}
-
-.nft-project-tree ul {
-  list-style: none;
-  margin: 0;
   padding: 0;
+  width: 145px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-family: 'MS Sans Serif', sans-serif;
+  font-size: 12px;
+  animation: slideIn 0.5s ease-out;
+  overflow: hidden;
 }
 
 .nft-project-tree li {
   display: flex;
   align-items: center;
-  cursor: pointer;
-  padding: 10px 5px;
   border-radius: 5px;
-  transition: background-color 0.3s ease;
+  list-style: none;
+  position: relative;
+  z-index: 1;
+  height: 48px;
+  cursor: url("../../assets/cursors/pointer.cur"), pointer;
 }
 
-.nft-project-tree li.selected,
-.nft-project-tree li:hover {
+.selection-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 48px;
   background-color: #008080;
+  transition: top 0.9s ease;
+  z-index: 0;
 }
 
 .project-icon {
   width: 36px;
   height: 36px;
+  margin-left: 5px;
   margin-right: 10px;
 }
 
-.nft-project-tree {
-  animation: slideIn 0.5s ease-out;
-}
-
 @keyframes slideIn {
-  0% {
+  from {
     opacity: 0;
     transform: translateX(-20%);
   }
-
-  100% {
+  to {
     opacity: 1;
     transform: translateX(0);
   }
 }
-
-.nft-project-tree {
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.nft-project-tree,
-.nft-project-tree ul,
-.nft-project-tree li {
-  font-family: 'MS Sans Serif', sans-serif;
-  font-size: 12px;
-}</style>
+</style>
