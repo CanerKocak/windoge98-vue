@@ -24,12 +24,6 @@ const allNfts: Nft[] = [
   { id: 1, name: "NFT 1", imageUrl: walletIcon },
   { id: 2, name: "NFT 2", imageUrl: cardsIcon },
   { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
-  { id: 1, name: "NFT 1", imageUrl: walletIcon },
-  { id: 2, name: "NFT 2", imageUrl: cardsIcon },
-  { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
-  { id: 1, name: "NFT 1", imageUrl: walletIcon },
-  { id: 2, name: "NFT 2", imageUrl: cardsIcon },
-  { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
 ];
 
 const randomNfts = ref<Nft[]>([]);

@@ -114,6 +114,7 @@ nav {
 .main-content {
   animation: slideIn 0.5s ease-out;
   max-height: 75vh;
+  min-height: 75vh;
   overflow-y: auto;
 }
 
