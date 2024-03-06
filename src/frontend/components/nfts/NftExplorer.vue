@@ -48,7 +48,7 @@ const selectProject = (projectName: string) => {
   color: white;
   transition: 0.5s ease;
 }
-.nft-project-tree,
+.nft-project-tree,  
 .nft-project-tree ul {
   position: relative;
   margin: 0;

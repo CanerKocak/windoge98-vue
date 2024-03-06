@@ -106,15 +106,11 @@ ul {
   padding: 0;
 }
 
-li {
+li, p {
   margin-bottom: 5px;
 }
 
 h2 {
   margin-bottom: 10px;
-}
-
-p {
-  margin-bottom: 5px;
 }
 </style>
