@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref, defineProps, watch } from 'vue';
-import walletIcon from "../../assets/wallet.png";
-import cardsIcon from "../../assets/playing_cards.png";
-import moonMergeIcon from "../../assets/merge_icon.png";
+import { onMounted, ref, defineProps, watch, defineEmits} from "vue";
 import loadingIcon from "../../assets/loading.gif";
+// import { useAuthStore } from "../auth";
+// import { storeToRefs } from "pinia";
+
+
+const allNfts: Nft[] = [];
 
 const emit = defineEmits(['selectNft']);
 
@@ -17,14 +19,6 @@ const props = defineProps<{
   selectedProject: String;
 }>();
 
-const allNfts: Nft[] = [
-  { id: 1, name: "NFT 1", imageUrl: walletIcon },
-  { id: 2, name: "NFT 2", imageUrl: cardsIcon },
-  { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
-  { id: 1, name: "NFT 1", imageUrl: walletIcon },
-  { id: 2, name: "NFT 2", imageUrl: cardsIcon },
-  { id: 3, name: "NFT 3", imageUrl: moonMergeIcon },
-];
 
 const randomNfts = ref<Nft[]>([]);
 const isLoading = ref(true);
