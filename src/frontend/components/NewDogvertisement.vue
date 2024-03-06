@@ -1,7 +1,9 @@
 <template>
   <div class="new-ad-container">
     <div class="new-ad-container2">
-      <h3 style="font-family: Arial; margin-top: 0px; margin-bottom; 20px; text-align: center">
+      <h3
+        style="font-family: Arial; margin-top: 0px; margin-bottom: 20px; text-align: center;"
+      >
         New Advertisement
       </h3>
       <div class="error" v-if="state.errors.length > 0">
@@ -117,7 +119,6 @@ const { title, link, isLoading, image, errors } = toRefs(state);
   font-size: 14px;
   font-weight: bold;
 }
-
 .new-ad-container {
   /* Add your CSS styles here */
   width: 100%;
@@ -126,14 +127,12 @@ const { title, link, isLoading, image, errors } = toRefs(state);
 .new-ad-container2 {
   padding: 10px;
 }
-
 .form-group {
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-
 .form-group div {
   margin-bottom: 1rem;
   display: flex;

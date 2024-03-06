@@ -1,0 +1,1 @@
+/home/caner/Desktop/windoge/windoge98-vue/src/dip721-nft-container/target/wasm32-unknown-unknown/release/dip721_nft_container.wasm: /home/caner/Desktop/windoge/windoge98-vue/src/dip721-nft-container/build.rs /home/caner/Desktop/windoge/windoge98-vue/src/dip721-nft-container/src/http.rs /home/caner/Desktop/windoge/windoge98-vue/src/dip721-nft-container/src/lib.rs
