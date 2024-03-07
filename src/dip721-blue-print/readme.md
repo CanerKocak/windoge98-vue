@@ -1,0 +1,1 @@
+## TODO for now, since the need for artsy collections is not here -yet- ## dfx,json will use this to generate centralized wasm

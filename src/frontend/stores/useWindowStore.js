@@ -164,13 +164,8 @@ export const useWindowStore = defineStore("windowStore", {
           return { component: NewbieGuide, props: {} };
         case "shutdown":
           return { component: ShutDownWindow, props: {} };
-<<<<<<< HEAD
 				case "NFToverview":
 					return { component: NFToverviewWindow, props: {} };
-=======
-        case "NFToverview":
-          return { component: NftOverview, props: {} };
->>>>>>> 19cc735 (implement initial frontend for nfts)
         case "dogvertiser":
           return { component: DogVertiser, props: {} };
         default:

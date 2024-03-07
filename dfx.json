@@ -25,6 +25,12 @@
       },
       "source": ["dist/assets", "dist"],
       "type": "assets"
+    },
+    "playing_cards": {
+      "type": "custom",
+      "candid": "src/declarations/playing_cards/playing_cards.did",
+      "build": "scripts/canister_build_scripts/playing_cards/build.sh",
+      "wasm": "src/nft_collections/playing_cards/target/wasm32-unknown-unknown/release/dip721_nft_container.wasm"
     }
   },
   "defaults": {
