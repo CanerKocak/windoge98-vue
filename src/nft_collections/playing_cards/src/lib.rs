@@ -553,3 +553,11 @@ fn set_custodian(user: Principal, custodian: bool) -> Result<()> {
 fn is_custodian(principal: Principal) -> bool {
     STATE.with(|state| state.borrow().custodians.contains(&principal))
 }
+
+/// This makes this Candid service self-describing, so that for example Candid UI, but also other
+/// tools, can seamlessly integrate with it. The concrete interface (method name etc.) is
+/// provisional, but works.
+#[query]
+fn __get_candid_interface_tmp_hack() -> String {
+    include_str!("../playing_cards.did").to_string()
+}

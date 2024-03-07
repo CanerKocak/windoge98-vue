@@ -1,4 +1,10 @@
 #!/bin/bash
+# make sure latest dfx is installed, otherwise they legit drop features or something lmao
+# dfxvm update, script is compatible with dfx 0.18.0 (7th march 2024)
+
+# when it doesnt manage to deploy everything, u gotta remove rust /target in dip721-nft-container and all the .dfx/ folders in the root folder
+# dfx --clean is not enough for some reason or it is and my machine is just acting up. run this script within scripts/ directory otherwise dfx & the scripts
+# will be funny and start looking at paths from root and not work properly
 
 # Check if DFX is running and stop it to ensure a clean start
 if dfx ping; then
@@ -7,10 +13,12 @@ if dfx ping; then
 fi
 
 echo "Starting DFX network in the background..."
-dfx start --background
+dfx start --background --clean
 
 echo "Pulling and deploying dependencies..."
-dfx deps pull && dfx deps init --argument '(null)' internet_identity
+dfx deps pull
+dfx deps init --argument '(null)' internet_identity
+dfx deps deploy internet_identity
 dfx deps deploy
 
 # Fetch the current user's principal
@@ -35,55 +43,33 @@ dfx deploy windoge --argument "(variant {Init =
    }
   })" --specified-id rh2pm-ryaaa-aaaan-qeniq-cai # this is the id of the canister in production
 
+# echo "Current directory: $(pwd)"
+# if [ ! -f "../src/nft_collections/playing_cards/playing_cards_args.did" ]; then
+#   echo "File not found!"
+#   echo "Creating playing_cards_args.did..."
+#   cd ../src/nft_collections/playing_cards || exit
+#   cargo build --target wasm32-unknown-unknown --release
+#   LOGO_DATA=$(base64 -w 0 logo.png)
+#   cat > playing_cards_args.did <<EOF
+# (record {
+#     "name" = "Playing Cards";
+#     "symbol" = "CARDS98";
+#     "logo" = (opt record {
+#         "data" = "$LOGO_DATA";
+#         "logo_type" = "image/png"
+#     });
+#     "custodians" = (opt vec { principal "$CURRENT_PRINCIPAL" });
+#     "maxLimit" = 52;
+# })
+# EOF
+#   echo "File created!"
+# else
+#   echo "File found!"
+# fi
+
+dfx deploy playing_cards --argument-file ../src/nft_collections/playing_cards/playing_cards_args.did
+
+# final deploy
 dfx deploy
 
-echo "Local development environment setup completed successfully."
-echo "Deploying NFT canisters..."
-echo "Current directory: $(pwd)"
-
-cd ..
-cd src
-cd dip721-nft-container
-echo "Current directory: $(pwd)"
-
-dfx deploy playing_cards_nft --argument="(record {
-    name = \"Playing Cards\";
-    symbol = \"CARDS98\";
-    logo = opt record {
-        data = \"$(base64 -i ./logo.png)\";
-        logo_type = \"image/png\";
-    };
-    custodians = opt vec { principal \"$CURRENT_PRINCIPAL\" };
-    maxLimit = 52;
-})"
-
-dfx canister call playing_cards_nft mintDip721 \
-    "(principal\"$CURRENT_PRINCIPAL\",vec{record{
-        purpose=variant{Rendered};
-        data=blob\"FIRSTCARD\";
-        key_val_data=vec{
-            record{
-                \"contentType\";
-                variant{TextContent=\"text/plain\"};
-            };
-            record{
-                \"locationType\";
-                variant{Nat8Content=4:nat8}
-            };
-        }
-    }},blob\"hello\")"
-
-dfx deploy dogesweeper_nft --argument="(record {
-    name = \"DogeSweeper\";
-    symbol = \"SWEEPER98\";
-    logo = opt record {
-        data = \"$(base64 -i ./logo.png)\";
-        logo_type = \"image/png\";
-    };
-    custodians = opt vec { principal \"$CURRENT_PRINCIPAL\" };
-    maxLimit = 256;
-})"
-
-# TODO ASSET CANISTER
-
-echo "NFT canister deployed successfully."
+# TODO ASSET CANISTER & LOGO's for the nft collections
