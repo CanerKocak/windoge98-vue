@@ -13,7 +13,7 @@ import {
 } from "../declarations/windoge";
 import { toRaw } from "vue";
 
-let IICanister = process.env.CANISTER_ID_internet_identity;
+let IICanister = process.env.CANISTER_ID_INTERNET_IDENTITY;
 type Subaccount = Uint8Array | number[];
 
 interface DogvertiserActor {

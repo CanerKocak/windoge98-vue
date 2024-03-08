@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { onMounted, ref, defineProps, watch, defineEmits} from "vue";
+import { onMounted, ref, defineProps, watch, defineEmits } from "vue";
 import loadingIcon from "../../assets/loading.gif";
-// import { useAuthStore } from "../auth";
-// import { storeToRefs } from "pinia";
-
+import { Actor, HttpAgent } from "@dfinity/agent";
+// import { idlFactory } from "../playing_cards.did.js";
 
 const allNfts: Nft[] = [];
-
 const emit = defineEmits(['selectNft']);
 
 interface Nft {
-  id: number;
+  id: string;
   name: string;
   imageUrl: string;
 }
@@ -19,23 +17,43 @@ const props = defineProps<{
   selectedProject: String;
 }>();
 
-
 const randomNfts = ref<Nft[]>([]);
 const isLoading = ref(true);
 
-const getRandomNfts = () => {
+const getRandomNfts = async () => {
   isLoading.value = true;
   const nftsToShow = Math.random() < 0.5 ? 5 : 10;
   const nfts: Nft[] = [];
   for (let i = 0; i < nftsToShow; i++) {
-    nfts.push({ id: i, name: `Loading... ${i+1}`, imageUrl: loadingIcon }); // Placeholder for loading
+    nfts.push({ id: i.toString(), name: `Loading... ${i+1}`, imageUrl: loadingIcon }); // Placeholder for loading
   }
   randomNfts.value = nfts; // Display loading placeholders
 
-  setTimeout(() => {
-    randomNfts.value = allNfts.slice(0, nftsToShow); // Replace with actual data after loading
+  try {
+    const agent = new HttpAgent();
+    const actor = Actor.createActor(idlFactory, {
+      agent,
+      canisterId: process.env.CANISTER_ID_PLAYING_CARDS as string,
+    });
+
+    const tokens: string[] = await actor.getTokens();
+    const fetchedNfts: Nft[] = await Promise.all(
+      tokens.slice(0, nftsToShow).map(async (token: string) => {
+        const metadata: { name: string; imageUrl: string } = await actor.getMetadata(token);
+        return {
+          id: token,
+          name: metadata.name,
+          imageUrl: metadata.imageUrl,
+        };
+      })
+    );
+
+    randomNfts.value = fetchedNfts;
     isLoading.value = false;
-  }, 2000);
+  } catch (error) {
+    console.error("Error fetching NFTs:", error);
+    isLoading.value = false;
+  }
 };
 
 onMounted(() => {
@@ -46,6 +64,7 @@ watch(() => props.selectedProject, () => {
   getRandomNfts();
 }, { immediate: true });
 </script>
+
 
 <template>
   <div class="nft-gallery">

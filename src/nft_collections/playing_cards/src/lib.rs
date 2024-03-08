@@ -557,6 +557,8 @@ fn is_custodian(principal: Principal) -> bool {
 /// This makes this Candid service self-describing, so that for example Candid UI, but also other
 /// tools, can seamlessly integrate with it. The concrete interface (method name etc.) is
 /// provisional, but works.
+/// 
+/// without this i couldn't open the web interface of the canister to test it quickly
 #[query]
 fn __get_candid_interface_tmp_hack() -> String {
     include_str!("../playing_cards.did").to_string()
