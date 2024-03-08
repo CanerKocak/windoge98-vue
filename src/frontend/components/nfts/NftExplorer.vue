@@ -2,7 +2,6 @@
 import { ref, watch } from 'vue';
 import walletIcon from "../../assets/wallet.png";
 import cardsIcon from "../../assets/playing_cards.png";
-import moonMergeIcon from "../../assets/merge_icon.png";
 import dogeSweeperIcon from "../../assets/dogesweeper.png";
 
 const props = defineProps<{
@@ -14,7 +13,6 @@ const emit = defineEmits(['selectProject']);
 const projects = ref([
   { name: 'My NFTs', icon: walletIcon },
   { name: 'Cards', icon: cardsIcon },
-  { name: 'MoonMerge', icon: moonMergeIcon },
   { name: 'DogeSweeper', icon: dogeSweeperIcon },
 ]);
 

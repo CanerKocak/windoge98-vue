@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from "vue";
 import { useAuthStore } from "../auth"
 import { storeToRefs } from "pinia";
+
 import NftExplorer from "./nfts/NftExplorer.vue";
 import NftCollection from "./nfts/NftCollection.vue";
 import NftDetail from "./nfts/NftDetail.vue";
@@ -36,10 +37,12 @@ onMounted(() => {
       <h1>Windoge Collections</h1>
       <nav>
         <button v-if="currentTab === 'nftDetail'" @click="currentTab = 'overview'">Back</button>
+        <button v-if="isAuthenticated" @click="authStore.logout">Logout</button>
+        <button v-if="!isAuthenticated" @click="authStore.login">Login</button>
       </nav>
     </header>
 
-    <div class="app-container">
+    <div class="app-container" v-if="isAuthenticated">
       <NftExplorer :selectedProject="selectedProject" @selectProject="selectedProject = $event" />
       <transition name="fade" mode="out-in">
         <div class="content-container" :key="currentTab">
@@ -53,11 +56,6 @@ onMounted(() => {
         </div>
       </transition>
     </div>
-
-  <!-- <div v-else class="login-container">
-    <button @click="authStore.login">Sign In</button>
-  </div> -->
-
 </template>
 
 
