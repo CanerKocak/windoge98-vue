@@ -4,7 +4,7 @@
 
 # when it doesnt manage to deploy everything, u gotta remove rust /target in dip721-nft-container and all the .dfx/ folders in the root folder
 # dfx --clean is not enough for some reason or it is and my machine is just acting up. run this script within scripts/ directory otherwise dfx & the scripts
-# will be funny and start looking at paths from root and not work properly
+# will be funny and start looking at paths from called pwd instead of scripts/ and not work properly
 
 # Check if DFX is running and stop it to ensure a clean start
 if dfx ping; then
@@ -15,11 +15,14 @@ fi
 echo "Starting DFX network in the background..."
 dfx start --background --clean
 
+# sometimes this causes issues, espescially with an already cached version being different hash or something
+# if that occurs i just removed the .cache/dfinity/pulled/rdmx6-jaaaa-aaaaa-aaadq-cai/canister.wasm.gz
+# so when sign in doesnt work i think removing it and redownloading it from deps pull should work
 echo "Pulling and deploying dependencies..."
 dfx deps pull
 dfx deps init --argument '(null)' internet_identity
 dfx deps deploy internet_identity
-dfx deps deploy
+# dfx deps deploy
 
 # Fetch the current user's principal
 CURRENT_PRINCIPAL=$(dfx identity get-principal)
@@ -43,33 +46,12 @@ dfx deploy windoge --argument "(variant {Init =
    }
   })" --specified-id rh2pm-ryaaa-aaaan-qeniq-cai # this is the id of the canister in production
 
-# echo "Current directory: $(pwd)"
-# if [ ! -f "../src/nft_collections/playing_cards/playing_cards_args.did" ]; then
-#   echo "File not found!"
-#   echo "Creating playing_cards_args.did..."
-#   cd ../src/nft_collections/playing_cards || exit
-#   cargo build --target wasm32-unknown-unknown --release
-#   LOGO_DATA=$(base64 -w 0 logo.png)
-#   cat > playing_cards_args.did <<EOF
-# (record {
-#     "name" = "Playing Cards";
-#     "symbol" = "CARDS98";
-#     "logo" = (opt record {
-#         "data" = "$LOGO_DATA";
-#         "logo_type" = "image/png"
-#     });
-#     "custodians" = (opt vec { principal "$CURRENT_PRINCIPAL" });
-#     "maxLimit" = 52;
-# })
-# EOF
-#   echo "File created!"
-# else
-#   echo "File found!"
-# fi
 
+# since this deploy command for deploying it, Actually uses the "dfx create & dfx build" it should generate args file
+# if not u should be able to generate it by running the scripts/canister_build_scripts/playing_cards/build.sh
 dfx deploy playing_cards --argument-file ../src/nft_collections/playing_cards/playing_cards_args.did
+
+# TODO ASSET CANISTER & LOGO's for the nft collections
 
 # final deploy
 dfx deploy
-
-# TODO ASSET CANISTER & LOGO's for the nft collections

@@ -7,7 +7,8 @@ CURRENT_PRINCIPAL=$(dfx identity get-principal)
 # Prepare the base64 encoded logo data
 LOGO_DATA=$(base64 -w 0 logo.png)
 
-# Generate the deployment arguments in Candid format (will be used by to deploy)
+# Generate the deployment arguments in Candid format (will be used to deploy)
+# The base64 logo is too long for a cli argument, so we use a file
 cat > playing_cards_args.did <<EOF
 (record {
     "name" = "Playing Cards";
