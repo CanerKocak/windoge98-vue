@@ -18,3 +18,5 @@
 # EOF
 
 # dfx deploy playing_cards --argument-file=playing_cards_args.did
+
+# not needed anymore but still serves as a good example of how to deploy the canister
