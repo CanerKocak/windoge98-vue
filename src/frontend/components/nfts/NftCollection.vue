@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, defineProps, watch, defineEmits } from "vue";
+import { onMounted, ref, Ref, defineProps, watch, defineEmits } from "vue";
 import loadingIcon from "../../assets/loading.gif";
 import { Actor, HttpAgent } from "@dfinity/agent";
-// import { idlFactory } from "../playing_cards.did.js";
-
-const allNfts: Nft[] = [];
-const emit = defineEmits(['selectNft']);
+import { Principal } from "@dfinity/principal";
+import {
+  idlFactory,
+  canisterId as playingCardsCanisterId,
+} from "../../../declarations/playing_cards";
 
 interface Nft {
   id: string;
@@ -14,68 +15,93 @@ interface Nft {
 }
 
 const props = defineProps<{
-  selectedProject: String;
+  selectedProject: string;
 }>();
 
-const randomNfts = ref<Nft[]>([]);
-const isLoading = ref(true);
+const emit = defineEmits(["selectNft"]);
+const principalIdInput: Ref<string> = ref("");
+const randomNfts: Ref<Nft[]> = ref([]);
+const isLoading: Ref<boolean> = ref(false);
 
-const getRandomNfts = async () => {
+// Initialization logic for HttpAgent, (local development only)
+const agent = new HttpAgent({ host: "http://localhost:8000" });
+if (process.env.NODE_ENV !== "production") {
+  // Fetch the root key for local replica
+  await agent.fetchRootKey();
+}
+
+// create an actor to interact with the canister using the agent
+const actor = Actor.createActor(idlFactory, {
+  agent,
+  canisterId: playingCardsCanisterId,
+});
+
+// Function to fetch random NFTs: logic for fetching and setting the NFTs
+const getRandomNfts = async (): Promise<void> => {
   isLoading.value = true;
-  const nftsToShow = Math.random() < 0.5 ? 5 : 10;
-  const nfts: Nft[] = [];
-  for (let i = 0; i < nftsToShow; i++) {
-    nfts.push({ id: i.toString(), name: `Loading... ${i+1}`, imageUrl: loadingIcon }); // Placeholder for loading
-  }
-  randomNfts.value = nfts; // Display loading placeholders
+  randomNfts.value = Array.from(
+    { length: Math.random() < 0.5 ? 5 : 10 },
+    (_, i) => ({
+      id: i.toString(),
+      name: `Loading... ${i + 1}`,
+      imageUrl: loadingIcon,
+    }),
+  );
 
   try {
-    const agent = new HttpAgent();
-    const actor = Actor.createActor(idlFactory, {
-      agent,
-      canisterId: process.env.CANISTER_ID_PLAYING_CARDS as string,
-    });
-
-    const tokens: string[] = await actor.getTokens();
+    const tokens: string[] = await actor.getTokens() as string[];
     const fetchedNfts: Nft[] = await Promise.all(
-      tokens.slice(0, nftsToShow).map(async (token: string) => {
-        const metadata: { name: string; imageUrl: string } = await actor.getMetadata(token);
+      tokens.slice(0, randomNfts.value.length).map(async (token: string) => {
+        let metadata: { name: string; imageUrl: string } = { name: "", imageUrl: "" };
+        metadata = metadata as { name: string; imageUrl: string };
+          await actor.getMetadata(token);
         return {
           id: token,
           name: metadata.name,
           imageUrl: metadata.imageUrl,
         };
-      })
+      }),
     );
 
     randomNfts.value = fetchedNfts;
-    isLoading.value = false;
   } catch (error) {
     console.error("Error fetching NFTs:", error);
+  } finally {
     isLoading.value = false;
   }
 };
 
-onMounted(() => {
-  getRandomNfts();
-});
+// Function to check if the user is a custodian; displays an alert with the result
+const checkIsCustodian = async (): Promise<void> => {
+  try {
+    const isCustodian: boolean = await actor.is_custodian() as boolean;
+    alert(`Is custodian: ${isCustodian}`);
+  } catch (error) {
+    console.error("Error checking is_custodian:", error);
+    alert("Error checking is_custodian: " + (error as Error).message);
+  }
+};
 
-watch(() => props.selectedProject, () => {
-  getRandomNfts();
-}, { immediate: true });
+onMounted(getRandomNfts);
+watch(() => props.selectedProject, getRandomNfts, { immediate: true });
 </script>
 
-
 <template>
-  <div class="nft-gallery">
-    <div v-for="nft in randomNfts" :key="nft.id" class="nft-item">
-      <div class="nft-container">
-        <img :src="nft.imageUrl" alt="NFT Image" class="fade-in"/>
-        <p>{{ isLoading ? 'Loading...' : nft.name }}</p>
-      </div>  
+  <div>
+    <div v-if="isLoading" class="loading-container">
+      <img :src="loadingIcon" alt="Loading...">
+    </div>
+    <div v-else class="nft-gallery">
+      <div v-for="nft in randomNfts" :key="nft.id" class="nft-item fade-in" @click="emit('selectNft', nft)">
+        <div class="nft-container">
+          <img :src="nft.imageUrl" :alt="nft.name">
+          <p>{{ nft.name }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .loading-container {
@@ -91,59 +117,62 @@ img {
 }
 
 .nft-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background-color: #0a0a0a;
-    border-radius: 8px;
-    overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  padding: 20px;
+  background-color: #0a0a0a;
+  border-radius: 8px;
+  overflow-y: auto;
 }
 
 .nft-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #000080, #008080);
-    border: none;
-    border-radius: 15px;
-    overflow: hidden;
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-    cursor: url("../../assets/cursors/pointer.cur"), pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #000080, #008080);
+  border: none;
+  border-radius: 15px;
+  overflow: hidden;
+  transition:
+    transform 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
+  cursor: url("../../assets/cursors/pointer.cur"), pointer;
 }
 
 .nft-item:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
+  transform: translateY(-10px);
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.5);
 }
 
 .nft-container img {
-    width: auto;
-    height: 120px;
-    padding: 10px;
-    object-fit: cover;
+  width: auto;
+  height: 120px;
+  padding: 10px;
+  object-fit: cover;
 }
 
 .nft-container p {
-    color: #00fffc;
-    text-align: center;
-    margin-top: 10px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 16px;
-    font-weight: bold;
+  color: #00fffc;
+  text-align: center;
+  margin-top: 10px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .fade-in {
-    animation: fadeIn 1s;
+  animation: fadeIn 1s;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 </style>
