@@ -85,6 +85,8 @@ enum Error {
     BidderHasNotPlacedBid,
     TransferFailed(String),
     BalanceRetrievalFailed,
+    InsufficientPrepaidBalance,
+    PrepaidBalanceRetrievalFailed,
     Other,
 }
 
@@ -100,6 +102,8 @@ impl std::fmt::Display for Error {
             Error::BidderHasNotPlacedBid => write!(f, "Bidder has not placed a bid"),
             Error::TransferFailed(msg) => write!(f, "Transfer failed: {}", msg),
             Error::BalanceRetrievalFailed => write!(f, "Balance retrieval failed"),
+            Error::InsufficientPrepaidBalance => write!(f, "Insufficient prepaid balance"),
+            Error::PrepaidBalanceRetrievalFailed => write!(f, "Prepaid balance retrieval failed"),
             Error::Other => write!(f, "Other error"),
         }
     }
@@ -601,10 +605,12 @@ fn list_all_nfts_full() -> Vec<Nft> {
 // Thread-local Storage for NFT Sales Information
 // ----------------------
 
+
 // This utilizes Rust's thread-local storage capabilities to safely store and manage sales information
 // for each NFT, ensuring thread safety and avoiding the use of unsafe code patterns.
 thread_local! {
     static SALES: RefCell<HashMap<u64, SaleInfo>> = RefCell::new(HashMap::new());
+    static USER_BALANCES: RefCell<HashMap<Principal, u64>> = RefCell::new(HashMap::new());
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -620,108 +626,191 @@ struct Bid {
     amount: u64,
 }
 
+#[update(name = "deposit")]
+fn deposit(amount: u64) -> Result<(), Error> {
+    let caller = api::caller();
+    match transfer_payment(caller, api::id(), amount) {
+        Ok(_) => {
+            USER_BALANCES.with(|balances| {
+                let mut balances = balances.borrow_mut();
+                *balances.entry(caller).or_insert(0) += amount;
+            });
+            Ok(())
+        }
+        Err(e) => Err(Error::TransferFailed(format!("Deposit failed: {}", e))),
+    }
+}
+
+#[update(name = "withdraw")]
+fn withdraw(amount: u64) -> Result<(), Error> {
+    let caller = api::caller();
+    USER_BALANCES.with(|balances| {
+        let mut balances = balances.borrow_mut();
+        if let Some(balance) = balances.get_mut(&caller) {
+            if *balance >= amount {
+                *balance -= amount;
+                match transfer_payment(api::id(), caller, amount) {
+                    Ok(_) => Ok(()),
+                    Err(e) => Err(Error::TransferFailed(format!("Withdrawal failed: {}", e))),
+                }
+            } else {
+                Err(Error::InsufficientPrepaidBalance)
+            }
+        } else {
+            Err(Error::PrepaidBalanceRetrievalFailed)
+        }
+    })
+}
+
 #[update(name = "putForSale")]
 fn put_for_sale(token_id: u64, price: u64) -> Result<(), Error> {
     let caller = api::caller();
     match owner_of(token_id) {
         Ok(owner) if owner == caller => {
-            SALES.with(|sales| {
-                sales.borrow_mut().insert(token_id, SaleInfo {
-                    price,
-                    seller: caller,
-                    bids: Vec::new(),
-                });
-            });
-            Ok(())
-        },
+            // Transfer the NFT from the caller to the canister
+            match transfer_from(caller, api::id(), token_id) {
+                Ok(_) => {
+                    SALES.with(|sales| {
+                        sales.borrow_mut().insert(
+                            token_id,
+                            SaleInfo {
+                                price,
+                                seller: caller,
+                                bids: Vec::new(),
+                            },
+                        );
+                    });
+                    Ok(())
+                }
+                Err(e) => Err(e),
+            }
+        }
         Ok(_) => Err(Error::Unauthorized),
         Err(_e) => Err(Error::InvalidTokenId),
     }
 }
 
 #[update(name = "removeFromSale")]
-fn remove_from_sale(token_id: u64) -> Result<(), String> {
+fn remove_from_sale(token_id: u64) -> Result<(), Error> {
     let caller = api::caller();
     match owner_of(token_id) {
-        Ok(owner) if owner == caller => {
+        Ok(owner) if owner == api::id() => {
             SALES.with(|sales| {
-                sales.borrow_mut().remove(&token_id);
-            });
-            Ok(())
-        },
-        Ok(_) => Err("Caller is not the owner".to_string()),
-        Err(_) => Err("Invalid token ID or owner lookup failed".to_string()),
+                if let Some(sale_info) = sales.borrow_mut().get(&token_id) {
+                    if sale_info.seller == caller {
+                        // Return all active bids to their respective bidders
+                        for bid in &sale_info.bids {
+                            USER_BALANCES.with(|balances| {
+                                let mut balances = balances.borrow_mut();
+                                *balances.entry(bid.bidder).or_insert(0) += bid.amount;
+                            });
+                        }
+                        // Remove the NFT from the sales map
+                        sales.borrow_mut().remove(&token_id);
+                        // Transfer the NFT back from the canister to the seller
+                        match transfer_from(api::id(), caller, token_id) {
+                            Ok(_) => Ok(()),
+                            Err(e) => Err(Error::TransferFailed(format!("NFT transfer failed: {}", e))),
+                        }
+                    } else {
+                        Err(Error::Unauthorized)
+                    }
+                } else {
+                    Err(Error::NFTNotForSale)
+                }
+            })
+        }
+        Ok(_) => Err(Error::Unauthorized),
+        Err(_) => Err(Error::InvalidTokenId),
     }
 }
 
 #[update(name = "buyNFT")]
-fn buy_nft(token_id: u64) -> Result<(), String> {
+fn buy_nft(token_id: u64) -> Result<(), Error> {
     let caller = api::caller();
     SALES.with(|sales| {
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            if let Some(balance) = balance_of_exe(caller) {
-                if balance >= sale_info.price {
-                    let transfer_result = safe_transfer_from(sale_info.seller, caller, token_id);
-                    match transfer_result {
-                        Ok(_) => {
-                            deduct_balance_exe(caller, sale_info.price);
-                            add_balance_exe(sale_info.seller, sale_info.price);
-                            sales.borrow_mut().remove(&token_id);
-                            Ok(())
-                        },
-                        Err(e) => Err(format!("Transfer failed: {}", e)),
+            USER_BALANCES.with(|balances| {
+                let mut balances = balances.borrow_mut();
+                if let Some(balance) = balances.get_mut(&caller) {
+                    if *balance >= sale_info.price {
+                        *balance -= sale_info.price;
+                        // Transfer the NFT from the canister to the buyer
+                        match transfer_from(api::id(), caller, token_id) {
+                            Ok(_) => {
+                                // Transfer payment from the canister to the seller
+                                *balances.entry(sale_info.seller).or_insert(0) += sale_info.price;
+                                sales.borrow_mut().remove(&token_id);
+                                Ok(())
+                            }
+                            Err(e) => Err(Error::TransferFailed(format!("NFT transfer failed: {}", e))),
+                        }
+                    } else {
+                        Err(Error::InsufficientPrepaidBalance)
                     }
                 } else {
-                    Err("Insufficient balance".to_string())
+                    Err(Error::PrepaidBalanceRetrievalFailed)
                 }
-            } else {
-                Err("Failed to retrieve buyer's balance".to_string())
-            }
+            })
         } else {
-            Err("NFT not for sale".to_string())
+            Err(Error::NFTNotForSale)
         }
     })
 }
-
 
 #[update(name = "placeBid")]
-fn place_bid(token_id: u64, bid_amount: u64) -> Result<(), String> {
+fn place_bid(token_id: u64, bid_amount: u64) -> Result<(), Error> {
     let caller = api::caller();
     SALES.with(|sales| {
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            if let Some(balance) = balance_of_exe(caller) {
-                if balance >= bid_amount {
-                    if sale_info.bids.iter().any(|bid| bid.bidder == caller) {
-                        return Err("Bidder has already placed a bid".to_string());
+            USER_BALANCES.with(|balances| {
+                let mut balances = balances.borrow_mut();
+                if let Some(balance) = balances.get_mut(&caller) {
+                    if *balance >= bid_amount {
+                        if sale_info.bids.iter().any(|bid| bid.bidder == caller) {
+                            return Err(Error::BidderAlreadyPlacedBid);
+                        }
+                        *balance -= bid_amount;
+                        sale_info.bids.push(Bid {
+                            bidder: caller,
+                            amount: bid_amount,
+                        });
+                        Ok(())
+                    } else {
+                        Err(Error::InsufficientPrepaidBalance)
                     }
-                    sale_info.bids.push(Bid { bidder: caller, amount: bid_amount });
-                    Ok(())
                 } else {
-                    Err("Insufficient balance".to_string())
+                    Err(Error::PrepaidBalanceRetrievalFailed)
                 }
-            } else {
-                Err("Failed to retrieve bidder's balance".to_string())
-            }
+            })
         } else {
-            Err("NFT not for sale".to_string())
+            Err(Error::NFTNotForSale)
         }
     })
 }
 
-
 #[update(name = "removeBid")]
-fn remove_bid(token_id: u64) -> Result<(), String> {
+fn remove_bid(token_id: u64, bidder: Principal) -> Result<(), Error> {
     let caller = api::caller();
     SALES.with(|sales| {
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            if let Some(bid_index) = sale_info.bids.iter().position(|bid| bid.bidder == caller) {
-                sale_info.bids.remove(bid_index);
-                Ok(())
+            if caller == sale_info.seller {
+                if let Some(bid_index) = sale_info.bids.iter().position(|bid| bid.bidder == bidder) {
+                    let bid = sale_info.bids.remove(bid_index);
+                    // Transfer the bid amount from the canister back to the bidder
+                    USER_BALANCES.with(|balances| {
+                        let mut balances = balances.borrow_mut();
+                        *balances.entry(bidder).or_insert(0) += bid.amount;
+                    });
+                    Ok(())
+                } else {
+                    Err(Error::BidderHasNotPlacedBid)
+                }
             } else {
-                Err("Bidder has not placed a bid".to_string())
+                Err(Error::Unauthorized)
             }
         } else {
-            Err("NFT not for sale".to_string())
+            Err(Error::NFTNotForSale)
         }
     })
 }
@@ -729,7 +818,11 @@ fn remove_bid(token_id: u64) -> Result<(), String> {
 #[query(name = "getTokensForSale")]
 fn get_tokens_for_sale() -> Vec<(u64, SaleInfo)> {
     SALES.with(|sales| {
-        sales.borrow().iter().map(|(token_id, sale_info)| (*token_id, sale_info.clone())).collect()
+        sales
+            .borrow()
+            .iter()
+            .map(|(token_id, sale_info)| (*token_id, sale_info.clone()))
+            .collect()
     })
 }
 
@@ -738,22 +831,26 @@ fn accept_bid(token_id: u64, bidder: Principal) -> Result<(), Error> {
     let caller = api::caller();
     SALES.with(|sales| {
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            if caller != sale_info.seller {
-                return Err(Error::Unauthorized);
-            }
-            if let Some(bid) = sale_info.bids.iter().find(|b| b.bidder == bidder) {
-                let transfer_result = safe_transfer_from(sale_info.seller, bid.bidder, token_id);
-                match transfer_result {
-                    Ok(_) => {
-                        deduct_balance_exe(bid.bidder, bid.amount);
-                        add_balance_exe(sale_info.seller, bid.amount);
-                        sales.borrow_mut().remove(&token_id);
-                        Ok(())
-                    },
-                    Err(e) => Err(Error::TransferFailed(format!("Transfer failed: {}", e))),
+            if caller == sale_info.seller {
+                if let Some(bid) = sale_info.bids.iter().find(|b| b.bidder == bidder) {
+                    // Transfer the NFT from the canister to the winning bidder
+                    match transfer_from(api::id(), bid.bidder, token_id) {
+                        Ok(_) => {
+                            // Transfer payment from the canister to the seller
+                            USER_BALANCES.with(|balances| {
+                                let mut balances = balances.borrow_mut();
+                                *balances.entry(sale_info.seller).or_insert(0) += bid.amount;
+                            });
+                            sales.borrow_mut().remove(&token_id);
+                            Ok(())
+                        }
+                        Err(e) => Err(Error::TransferFailed(format!("NFT transfer failed: {}", e))),
+                    }
+                } else {
+                    Err(Error::BidderHasNotPlacedBid)
                 }
             } else {
-                Err(Error::BidderHasNotPlacedBid)
+                Err(Error::Unauthorized)
             }
         } else {
             Err(Error::NFTNotForSale)
@@ -767,7 +864,11 @@ fn withdraw_bid(token_id: u64) -> Result<(), Error> {
     SALES.with(|sales| {
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
             if let Some(bid_index) = sale_info.bids.iter().position(|bid| bid.bidder == caller) {
-                sale_info.bids.remove(bid_index);
+                let bid = sale_info.bids.remove(bid_index);
+                USER_BALANCES.with(|balances| {
+                    let mut balances = balances.borrow_mut();
+                    *balances.entry(caller).or_insert(0) += bid.amount;
+                });
                 Ok(())
             } else {
                 Err(Error::BidderHasNotPlacedBid)
@@ -821,14 +922,10 @@ fn get_bids_by_nft(token_id: u64) -> Option<Vec<Bid>> {
     })
 }
 
-fn balance_of_exe(_user: Principal) -> Option<u64> {
-    unimplemented!()
+fn _balance_of_exe(user: Principal) -> Option<u64> {
+    USER_BALANCES.with(|balances| balances.borrow().get(&user).cloned())
 }
 
-fn deduct_balance_exe(_user: Principal, _amount: u64) {
-    unimplemented!()
-}
-
-fn add_balance_exe(_user: Principal, _amount: u64) {
+fn transfer_payment(_from: Principal, _to: Principal, _amount: u64) -> Result<(), String> {
     unimplemented!()
 }
