@@ -79,7 +79,30 @@ enum Error {
     Unauthorized,
     InvalidTokenId,
     ZeroAddress,
+    InsufficientBalance,
+    NFTNotForSale,
+    BidderAlreadyPlacedBid,
+    BidderHasNotPlacedBid,
+    TransferFailed(String),
+    BalanceRetrievalFailed,
     Other,
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Error::Unauthorized => write!(f, "Unauthorized"),
+            Error::InvalidTokenId => write!(f, "Invalid token ID"),
+            Error::ZeroAddress => write!(f, "Zero address"),
+            Error::InsufficientBalance => write!(f, "Insufficient balance"),
+            Error::NFTNotForSale => write!(f, "NFT not for sale"),
+            Error::BidderAlreadyPlacedBid => write!(f, "Bidder has already placed a bid"),
+            Error::BidderHasNotPlacedBid => write!(f, "Bidder has not placed a bid"),
+            Error::TransferFailed(msg) => write!(f, "Transfer failed: {}", msg),
+            Error::BalanceRetrievalFailed => write!(f, "Balance retrieval failed"),
+            Error::Other => write!(f, "Other error"),
+        }
+    }
 }
 
 impl From<TryFromIntError> for Error {
@@ -417,7 +440,7 @@ fn burn(token_id: u64) -> Result {
     })
 }
 
-#[derive(CandidType, Deserialize, Default)]
+#[derive(CandidType, Deserialize, Default, Clone)]
 struct State {
     nfts: Vec<Nft>,
     custodians: HashSet<Principal>,
@@ -428,7 +451,7 @@ struct State {
     txid: u128,
 }
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone)]
 struct Nft {
     owner: Principal,
     approved: Option<Principal>,
@@ -440,14 +463,14 @@ struct Nft {
 type MetadataDesc = Vec<MetadataPart>;
 type MetadataDescRef<'a> = &'a [MetadataPart];
 
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone)]
 struct MetadataPart {
     purpose: MetadataPurpose,
     key_val_data: HashMap<String, MetadataVal>,
     data: Vec<u8>,
 }
 
-#[derive(CandidType, Deserialize, PartialEq)]
+#[derive(CandidType, Deserialize, PartialEq, Clone)]
 enum MetadataPurpose {
     Preview,
     Rendered,
@@ -460,7 +483,7 @@ struct MintResult {
 }
 
 #[allow(clippy::enum_variant_names)]
-#[derive(CandidType, Deserialize)]
+#[derive(CandidType, Deserialize, Clone)]
 enum MetadataVal {
     TextContent(String),
     BlobContent(Vec<u8>),
@@ -567,7 +590,6 @@ fn __get_candid_interface_tmp_hack() -> String {
 // ----------------------
 // retrieve all NFTs
 // ----------------------
-/// #[query(name = "listAllNftIdsAndOwners")]
 #[query(name = "listAllNftsFull")]
 fn list_all_nfts_full() -> Vec<Nft> {
     STATE.with(|state| {
@@ -585,11 +607,6 @@ thread_local! {
     static SALES: RefCell<HashMap<u64, SaleInfo>> = RefCell::new(HashMap::new());
 }
 
-// ----------------------
-// Struct Definitions for NFT Sales and Bids
-// ----------------------
-
-// SaleInfo struct holds details about an NFT sale, including the price, the seller, and any bids made.
 #[derive(Clone, Debug, CandidType, Deserialize)]
 struct SaleInfo {
     price: u64,
@@ -597,21 +614,14 @@ struct SaleInfo {
     bids: Vec<Bid>,
 }
 
-// Bid struct captures information about a bid on an NFT, including the bidder and the amount bid.
 #[derive(Clone, Debug, CandidType, Deserialize)]
 struct Bid {
     bidder: Principal,
     amount: u64,
 }
 
-// ----------------------
-// NFT Sale Management Functions
-// ----------------------
-
-// Put an NFT up for sale with a specified price.
-// Validates the ownership before allowing the sale.
 #[update(name = "putForSale")]
-fn put_for_sale(token_id: u64, price: u64) -> Result<(), SaleError> {
+fn put_for_sale(token_id: u64, price: u64) -> Result<(), Error> {
     let caller = api::caller();
     match owner_of(token_id) {
         Ok(owner) if owner == caller => {
@@ -624,12 +634,11 @@ fn put_for_sale(token_id: u64, price: u64) -> Result<(), SaleError> {
             });
             Ok(())
         },
-        Ok(_) => Err(SaleError::Unauthorized),
-        Err(e) => Err(SaleError::InvalidTokenId),
+        Ok(_) => Err(Error::Unauthorized),
+        Err(_e) => Err(Error::InvalidTokenId),
     }
 }
 
-// Remove an NFT from sale, ensuring that only the owner can perform this action.
 #[update(name = "removeFromSale")]
 fn remove_from_sale(token_id: u64) -> Result<(), String> {
     let caller = api::caller();
@@ -645,19 +654,13 @@ fn remove_from_sale(token_id: u64) -> Result<(), String> {
     }
 }
 
-// Allow a user to buy an NFT if it is for sale and they have enough balance.
-// Handles balance transfer between buyer and seller.
 #[update(name = "buyNFT")]
 fn buy_nft(token_id: u64) -> Result<(), String> {
     let caller = api::caller();
     SALES.with(|sales| {
-        // Check if the NFT is for sale
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            // Check if the buyer has enough balance to make the purchase
             if let Some(balance) = balance_of_exe(caller) {
-                // If the buyer has enough balance, transfer the NFT to the buyer and the sale amount to the seller
                 if balance >= sale_info.price {
-                    // Transfer the NFT to the buyer if match result is Ok
                     let transfer_result = safe_transfer_from(sale_info.seller, caller, token_id);
                     match transfer_result {
                         Ok(_) => {
@@ -680,24 +683,17 @@ fn buy_nft(token_id: u64) -> Result<(), String> {
     })
 }
 
-// Enable users to place bids on NFTs that are for sale.
-// Also makes sure that the bidder has enough balance to place the bid.
-// Also checks if he didn't place a bid already, if he did, returns an error stating: "Bidder has already placed a bid"
+
 #[update(name = "placeBid")]
 fn place_bid(token_id: u64, bid_amount: u64) -> Result<(), String> {
     let caller = api::caller();
     SALES.with(|sales| {
-        // Check if the NFT is for sale
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            // Check if the bidder has enough balance to make the bid
             if let Some(balance) = balance_of_exe(caller) {
-                // If the bidder has enough balance, place the bid
                 if balance >= bid_amount {
-                    // Check if the bidder has already placed a bid
                     if sale_info.bids.iter().any(|bid| bid.bidder == caller) {
                         return Err("Bidder has already placed a bid".to_string());
                     }
-                    // If the bidder has not placed a bid, place the bid
                     sale_info.bids.push(Bid { bidder: caller, amount: bid_amount });
                     Ok(())
                 } else {
@@ -713,20 +709,12 @@ fn place_bid(token_id: u64, bid_amount: u64) -> Result<(), String> {
 }
 
 
-// Allow users to remove their bids on NFTs that are for sale
-// to make this safer it is possible to remove the Ok within the if let
-// since then it would remove all bids (that match user auth ofc), if user some how manages to place more than one bid (naughty user)
-// but I don't see that as possible, may a bug arises that causes that scenario, entertain the idea of removing the Ok within the if let
-// and just check each bid if it matches the user and remove it
 #[update(name = "removeBid")]
 fn remove_bid(token_id: u64) -> Result<(), String> {
     let caller = api::caller();
     SALES.with(|sales| {
-        // Check if the NFT is for sale
         if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
-            // Check if the bidder has placed a bid
             if let Some(bid_index) = sale_info.bids.iter().position(|bid| bid.bidder == caller) {
-                // If the bidder has placed a bid, remove it
                 sale_info.bids.remove(bid_index);
                 Ok(())
             } else {
@@ -738,7 +726,6 @@ fn remove_bid(token_id: u64) -> Result<(), String> {
     })
 }
 
-// Retrieve a list of all NFTs currently for sale along with their sale information.
 #[query(name = "getTokensForSale")]
 fn get_tokens_for_sale() -> Vec<(u64, SaleInfo)> {
     SALES.with(|sales| {
@@ -746,19 +733,102 @@ fn get_tokens_for_sale() -> Vec<(u64, SaleInfo)> {
     })
 }
 
-// functions for interacting with EXE token
+#[update(name = "acceptBid")]
+fn accept_bid(token_id: u64, bidder: Principal) -> Result<(), Error> {
+    let caller = api::caller();
+    SALES.with(|sales| {
+        if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
+            if caller != sale_info.seller {
+                return Err(Error::Unauthorized);
+            }
+            if let Some(bid) = sale_info.bids.iter().find(|b| b.bidder == bidder) {
+                let transfer_result = safe_transfer_from(sale_info.seller, bid.bidder, token_id);
+                match transfer_result {
+                    Ok(_) => {
+                        deduct_balance_exe(bid.bidder, bid.amount);
+                        add_balance_exe(sale_info.seller, bid.amount);
+                        sales.borrow_mut().remove(&token_id);
+                        Ok(())
+                    },
+                    Err(e) => Err(Error::TransferFailed(format!("Transfer failed: {}", e))),
+                }
+            } else {
+                Err(Error::BidderHasNotPlacedBid)
+            }
+        } else {
+            Err(Error::NFTNotForSale)
+        }
+    })
+}
 
-fn balance_of_exe(user: Principal) -> Option<u64> {
-    // TODO
+#[update(name = "withdrawBid")]
+fn withdraw_bid(token_id: u64) -> Result<(), Error> {
+    let caller = api::caller();
+    SALES.with(|sales| {
+        if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
+            if let Some(bid_index) = sale_info.bids.iter().position(|bid| bid.bidder == caller) {
+                sale_info.bids.remove(bid_index);
+                Ok(())
+            } else {
+                Err(Error::BidderHasNotPlacedBid)
+            }
+        } else {
+            Err(Error::NFTNotForSale)
+        }
+    })
+}
+
+#[update(name = "updateSalePrice")]
+fn update_sale_price(token_id: u64, new_price: u64) -> Result<(), Error> {
+    let caller = api::caller();
+    SALES.with(|sales| {
+        if let Some(sale_info) = sales.borrow_mut().get_mut(&token_id) {
+            if caller != sale_info.seller {
+                return Err(Error::Unauthorized);
+            }
+            sale_info.price = new_price;
+            Ok(())
+        } else {
+            Err(Error::NFTNotForSale)
+        }
+    })
+}
+
+#[query(name = "getSaleInfo")]
+fn get_sale_info(token_id: u64) -> Option<SaleInfo> {
+    SALES.with(|sales| {
+        sales.borrow().get(&token_id).cloned()
+    })
+}
+
+#[query(name = "getBidsByBidder")]
+fn get_bids_by_bidder(bidder: Principal) -> Vec<(u64, Bid)> {
+    SALES.with(|sales| {
+        sales.borrow().iter()
+            .flat_map(|(token_id, sale_info)| {
+                sale_info.bids.iter()
+                    .filter(|bid| bid.bidder == bidder)
+                    .map(move |bid| (*token_id, bid.clone()))
+            })
+            .collect()
+    })
+}
+
+#[query(name = "getBidsByNFT")]
+fn get_bids_by_nft(token_id: u64) -> Option<Vec<Bid>> {
+    SALES.with(|sales| {
+        sales.borrow().get(&token_id).map(|sale_info| sale_info.bids.clone())
+    })
+}
+
+fn balance_of_exe(_user: Principal) -> Option<u64> {
     unimplemented!()
 }
 
-fn deduct_balance_exe(user: Principal, amount: u64) {
-    // TODO
+fn deduct_balance_exe(_user: Principal, _amount: u64) {
     unimplemented!()
 }
 
-fn add_balance_exe(user: Principal, amount: u64) {
-    // TODO
+fn add_balance_exe(_user: Principal, _amount: u64) {
     unimplemented!()
 }
