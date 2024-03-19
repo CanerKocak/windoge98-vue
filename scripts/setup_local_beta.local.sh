@@ -54,4 +54,4 @@ dfx deploy playing_cards --argument-file ../src/nft_collections/playing_cards/pl
 # TODO ASSET CANISTER & LOGO's for the nft collections
 
 # final deploy
-dfx deploy
+# dfx deploy

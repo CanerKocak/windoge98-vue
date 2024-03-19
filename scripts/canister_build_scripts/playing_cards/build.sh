@@ -21,3 +21,6 @@ cat > playing_cards_args.did <<EOF
     "maxLimit" = 52;
 })
 EOF
+
+# generate the .did file from the compiled wasm
+candid-extractor target/wasm32-unknown-unknown/release/dip721_nft_container.wasm > playing_cards.did
