@@ -3,15 +3,14 @@ use std::iter::FromIterator;
 use std::{cell::RefCell, collections::HashMap};
 
 use candid::CandidType;
-use ic_cdk::{
-    api::{self, call},
-    export::candid,
-};
+use ic_cdk::api::{self, call};
 use ic_certified_map::{AsHashTree, Hash, RbTree};
 use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use serde_cbor::Serializer;
 use sha2::{Digest, Sha256};
+
+use base64::Engine;
 
 use crate::{MetadataPurpose, MetadataVal, STATE};
 
@@ -42,13 +41,13 @@ struct HttpResponse<'a> {
 fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
 {
     ic_cdk::setup();
-    let req = call::arg_data::<(HttpRequest,)>().0;
+    let req = call::arg_data::<(HttpRequest,)>(Default::default()).0;
     STATE.with(|state| {
         let state = state.borrow();
         let url = req.url.split('?').next().unwrap_or("/");
         let cert = format!(
             "certificate=:{}:, tree=:{}:",
-            base64::encode(api::data_certificate().unwrap()),
+            base64::engine::general_purpose::STANDARD.encode(api::data_certificate().unwrap()),
             witness(&url)
         )
         .into();
@@ -178,6 +177,6 @@ fn witness(name: &str) -> String {
         let mut serializer = Serializer::new(&mut data);
         serializer.self_describe().unwrap();
         tree.serialize(&mut serializer).unwrap();
-        base64::encode(data)
+        base64::engine::general_purpose::STANDARD.encode(data)
     })
 }
