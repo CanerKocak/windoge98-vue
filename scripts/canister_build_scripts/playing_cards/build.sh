@@ -22,5 +22,7 @@ cat > playing_cards_args.did <<EOF
 })
 EOF
 
-# generate the .did file from the compiled wasm
-candid-extractor target/wasm32-unknown-unknown/release/dip721_nft_container.wasm > playing_cards.did
+# Generate the .did file from the compiled Wasm
+# Requires candid-extractor (install with `cargo install candid-extractor`)
+# Ensure ~/.cargo/bin is in PATH (e.g., `export PATH="$HOME/.cargo/bin:$PATH"`)
+# candid-extractor target/wasm32-unknown-unknown/release/dip721_nft_container.wasm > playing_cards.did

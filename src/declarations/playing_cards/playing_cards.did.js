@@ -6,13 +6,28 @@ export const idlFactory = ({ IDL }) => {
     'custodians' : IDL.Opt(IDL.Vec(IDL.Principal)),
     'symbol' : IDL.Text,
   });
-  const ApiError = IDL.Variant({
+  const Error = IDL.Variant({
+    'InsufficientPrepaidBalance' : IDL.Null,
+    'NFTNotForSale' : IDL.Null,
+    'BidderAlreadyPlacedBid' : IDL.Null,
+    'BidderHasNotPlacedBid' : IDL.Null,
     'ZeroAddress' : IDL.Null,
+    'BalanceRetrievalFailed' : IDL.Null,
+    'InsufficientBalance' : IDL.Null,
     'InvalidTokenId' : IDL.Null,
     'Unauthorized' : IDL.Null,
     'Other' : IDL.Null,
+    'TransferFailed' : IDL.Text,
+    'PrepaidBalanceRetrievalFailed' : IDL.Null,
   });
-  const TxReceipt = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : ApiError });
+  const Result = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error });
+  const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : Error });
+  const Bid = IDL.Record({ 'amount' : IDL.Nat64, 'bidder' : IDL.Principal });
+  const SaleInfo = IDL.Record({
+    'bids' : IDL.Vec(Bid),
+    'seller' : IDL.Principal,
+    'price' : IDL.Nat64,
+  });
   const MetadataVal = IDL.Variant({
     'Nat64Content' : IDL.Nat64,
     'Nat32Content' : IDL.Nat32,
@@ -22,39 +37,26 @@ export const idlFactory = ({ IDL }) => {
     'BlobContent' : IDL.Vec(IDL.Nat8),
     'TextContent' : IDL.Text,
   });
-  const MetadataKeyVal = IDL.Tuple(IDL.Text, MetadataVal);
   const MetadataPurpose = IDL.Variant({
     'Preview' : IDL.Null,
     'Rendered' : IDL.Null,
   });
   const MetadataPart = IDL.Record({
     'data' : IDL.Vec(IDL.Nat8),
-    'key_val_data' : IDL.Vec(MetadataKeyVal),
+    'key_val_data' : IDL.Vec(IDL.Tuple(IDL.Text, MetadataVal)),
     'purpose' : MetadataPurpose,
   });
-  const MetadataDesc = IDL.Vec(MetadataPart);
-  const MetadataResult = IDL.Variant({ 'Ok' : MetadataDesc, 'Err' : ApiError });
-  const ExtendedMetadataResult = IDL.Record({
-    'token_id' : IDL.Nat64,
-    'metadata_desc' : MetadataDesc,
+  const Nft = IDL.Record({
+    'id' : IDL.Nat64,
+    'content' : IDL.Vec(IDL.Nat8),
+    'owner' : IDL.Principal,
+    'metadata' : IDL.Vec(MetadataPart),
+    'approved' : IDL.Opt(IDL.Principal),
   });
-  const HttpRequest = IDL.Record({
-    'url' : IDL.Text,
-    'method' : IDL.Text,
-    'body' : IDL.Vec(IDL.Nat8),
-    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
-  });
-  const HttpResponse = IDL.Record({
-    'body' : IDL.Vec(IDL.Nat8),
-    'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
-    'status_code' : IDL.Nat16,
-  });
-  const MintReceipt = IDL.Variant({
-    'Ok' : IDL.Record({ 'id' : IDL.Nat, 'token_id' : IDL.Nat64 }),
-    'Err' : IDL.Variant({ 'Unauthorized' : IDL.Null }),
-  });
-  const OwnerResult = IDL.Variant({ 'Ok' : IDL.Principal, 'Err' : ApiError });
-  const ManageResult = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ApiError });
+  const MintResult = IDL.Record({ 'id' : IDL.Nat, 'token_id' : IDL.Nat64 });
+  const ConstrainedError = IDL.Variant({ 'Unauthorized' : IDL.Null });
+  const Result_2 = IDL.Variant({ 'Ok' : MintResult, 'Err' : ConstrainedError });
+  const Result_3 = IDL.Variant({ 'Ok' : IDL.Principal, 'Err' : Error });
   const InterfaceId = IDL.Variant({
     'Burn' : IDL.Null,
     'Mint' : IDL.Null,
@@ -63,46 +65,58 @@ export const idlFactory = ({ IDL }) => {
     'TransferNotification' : IDL.Null,
   });
   return IDL.Service({
-    'approveDip721' : IDL.Func([IDL.Principal, IDL.Nat64], [TxReceipt], []),
+    '__get_candid_interface_tmp_hack' : IDL.Func([], [IDL.Text], ['query']),
+    'acceptBid' : IDL.Func([IDL.Nat64, IDL.Principal], [Result], []),
+    'approveDip721' : IDL.Func([IDL.Principal, IDL.Nat64], [Result_1], []),
     'balanceOfDip721' : IDL.Func([IDL.Principal], [IDL.Nat64], ['query']),
-    'burnDip721' : IDL.Func([IDL.Nat64], [TxReceipt], []),
-    'getApprovedDip721' : IDL.Func([IDL.Nat64], [TxReceipt], ['query']),
-    'getMetadataDip721' : IDL.Func([IDL.Nat64], [MetadataResult], ['query']),
-    'getMetdataForUserDip721' : IDL.Func(
+    'burnDip721' : IDL.Func([IDL.Nat64], [Result_1], []),
+    'buyNFT' : IDL.Func([IDL.Nat64], [Result], []),
+    'deposit' : IDL.Func([IDL.Nat64], [Result], []),
+    'getBidsByBidder' : IDL.Func(
         [IDL.Principal],
-        [IDL.Vec(ExtendedMetadataResult)],
-        [],
+        [IDL.Vec(IDL.Tuple(IDL.Nat64, Bid))],
+        ['query'],
       ),
-    'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
+    'getBidsByNFT' : IDL.Func([IDL.Nat64], [IDL.Opt(IDL.Vec(Bid))], ['query']),
+    'getSaleInfo' : IDL.Func([IDL.Nat64], [IDL.Opt(SaleInfo)], ['query']),
+    'getTokensForSale' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Nat64, SaleInfo))],
+        ['query'],
+      ),
     'isApprovedForAllDip721' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
     'is_custodian' : IDL.Func([IDL.Principal], [IDL.Bool], ['query']),
-    'logoDip721' : IDL.Func([], [LogoResult], ['query']),
+    'listAllNftsFull' : IDL.Func([], [IDL.Vec(Nft)], ['query']),
     'mintDip721' : IDL.Func(
-        [IDL.Principal, MetadataDesc, IDL.Vec(IDL.Nat8)],
-        [MintReceipt],
+        [IDL.Principal, IDL.Vec(MetadataPart), IDL.Vec(IDL.Nat8)],
+        [Result_2],
         [],
       ),
     'nameDip721' : IDL.Func([], [IDL.Text], ['query']),
-    'ownerOfDip721' : IDL.Func([IDL.Nat64], [OwnerResult], ['query']),
+    'ownerOfDip721' : IDL.Func([IDL.Nat64], [Result_3], ['query']),
+    'placeBid' : IDL.Func([IDL.Nat64, IDL.Nat64], [Result], []),
+    'putForSale' : IDL.Func([IDL.Nat64, IDL.Nat64], [Result], []),
+    'removeBid' : IDL.Func([IDL.Nat64, IDL.Principal], [Result], []),
+    'removeFromSale' : IDL.Func([IDL.Nat64], [Result], []),
     'safeTransferFromDip721' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat64],
-        [TxReceipt],
+        [Result_1],
         [],
       ),
     'safeTransferFromNotifyDip721' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat64, IDL.Vec(IDL.Nat8)],
-        [TxReceipt],
+        [Result_1],
         [],
       ),
     'setApprovalForAllDip721' : IDL.Func(
         [IDL.Principal, IDL.Bool],
-        [TxReceipt],
+        [Result_1],
         [],
       ),
-    'set_custodian' : IDL.Func([IDL.Principal, IDL.Bool], [ManageResult], []),
-    'set_logo' : IDL.Func([IDL.Opt(LogoResult)], [ManageResult], []),
-    'set_name' : IDL.Func([IDL.Text], [ManageResult], []),
-    'set_symbol' : IDL.Func([IDL.Text], [ManageResult], []),
+    'set_custodian' : IDL.Func([IDL.Principal, IDL.Bool], [Result], []),
+    'set_logo' : IDL.Func([IDL.Opt(LogoResult)], [Result], []),
+    'set_name' : IDL.Func([IDL.Text], [Result], []),
+    'set_symbol' : IDL.Func([IDL.Text], [Result], []),
     'supportedInterfacesDip721' : IDL.Func(
         [],
         [IDL.Vec(InterfaceId)],
@@ -112,14 +126,17 @@ export const idlFactory = ({ IDL }) => {
     'totalSupplyDip721' : IDL.Func([], [IDL.Nat64], ['query']),
     'transferFromDip721' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat64],
-        [TxReceipt],
+        [Result_1],
         [],
       ),
     'transferFromNotifyDip721' : IDL.Func(
         [IDL.Principal, IDL.Principal, IDL.Nat64, IDL.Vec(IDL.Nat8)],
-        [TxReceipt],
+        [Result_1],
         [],
       ),
+    'updateSalePrice' : IDL.Func([IDL.Nat64, IDL.Nat64], [Result], []),
+    'withdraw' : IDL.Func([IDL.Nat64], [Result], []),
+    'withdrawBid' : IDL.Func([IDL.Nat64], [Result], []),
   });
 };
 export const init = ({ IDL }) => {

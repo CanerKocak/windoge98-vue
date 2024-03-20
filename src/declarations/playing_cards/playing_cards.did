@@ -1,155 +1,100 @@
-type OwnerResult = variant {
-    Err : ApiError;
-    Ok : principal;
+type Bid = record { amount : nat64; bidder : principal };
+type ConstrainedError = variant { Unauthorized };
+type Error = variant {
+  InsufficientPrepaidBalance;
+  NFTNotForSale;
+  BidderAlreadyPlacedBid;
+  BidderHasNotPlacedBid;
+  ZeroAddress;
+  BalanceRetrievalFailed;
+  InsufficientBalance;
+  InvalidTokenId;
+  Unauthorized;
+  Other;
+  TransferFailed : text;
+  PrepaidBalanceRetrievalFailed;
 };
-type ApiError = variant {
-    Unauthorized;
-    InvalidTokenId;
-    ZeroAddress;
-    Other;
-};
-type TxReceipt = variant {
-    Ok : nat;
-    Err : ApiError;
+type InitArgs = record {
+  logo : opt LogoResult;
+  name : text;
+  custodians : opt vec principal;
+  symbol : text;
 };
 type InterfaceId = variant {
-    Approval;
-    TransactionHistory;
-    Mint;
-    Burn;
-    TransferNotification;
+  Burn;
+  Mint;
+  Approval;
+  TransactionHistory;
+  TransferNotification;
 };
-type LogoResult = record {
-    logo_type : text;
-    data : text;
-};
-type ExtendedMetadataResult = record {
-    metadata_desc : MetadataDesc;
-    token_id : nat64;
-};
-type MetadataResult = variant {
-    Ok : MetadataDesc;
-    Err : ApiError;
-};
-type MetadataDesc = vec MetadataPart;
+type LogoResult = record { data : text; logo_type : text };
 type MetadataPart = record {
-    purpose : MetadataPurpose;
-    key_val_data : vec MetadataKeyVal;
-    data : blob;
+  data : vec nat8;
+  key_val_data : vec record { text; MetadataVal };
+  purpose : MetadataPurpose;
 };
-type MetadataPurpose = variant {
-    Preview;
-    Rendered;
-};
-type MetadataKeyVal = record {
-    text;
-    MetadataVal;
-};
+type MetadataPurpose = variant { Preview; Rendered };
 type MetadataVal = variant {
-    TextContent : text;
-    BlobContent : blob;
-    NatContent : nat;
-    Nat8Content : nat8;
-    Nat16Content : nat16;
-    Nat32Content : nat32;
-    Nat64Content : nat64;
+  Nat64Content : nat64;
+  Nat32Content : nat32;
+  Nat8Content : nat8;
+  NatContent : nat;
+  Nat16Content : nat16;
+  BlobContent : vec nat8;
+  TextContent : text;
 };
-type TxResult = record { // ???
-    fee : nat;
-    transaction_type : TransactionType;
+type MintResult = record { id : nat; token_id : nat64 };
+type Nft = record {
+  id : nat64;
+  content : vec nat8;
+  owner : principal;
+  metadata : vec MetadataPart;
+  approved : opt principal;
 };
-type TransactionType = variant {
-    Transfer : record {
-        token_id : nat64;
-        from : principal;
-        to : principal;
-    };
-    TransferFrom : record {
-        token_id : nat64;
-        from : principal;
-        to : principal;
-    };
-    Approve : record {
-        token_id : nat64;
-        from : principal;
-        to : principal;
-    };
-    SetApprovalForAll : record {
-        from : principal;
-        to : principal;
-    };
-    Mint : record {
-        token_id : nat64;
-    };
-    Burn : record {
-        token_id : nat64;
-    };
-};
-
-type MintReceipt = variant {
-    Err : variant {
-        Unauthorized;
-    };
-    Ok : record {
-        token_id : nat64;
-        id : nat;
-    };
-};
-
-type BurnRequest = record {
-    token_id : nat64;
-};
-
-type InitArgs = record {
-    custodians : opt vec principal;
-    logo : opt LogoResult;
-    name : text;
-    symbol : text;
-};
-
-type ManageResult = variant {
-    Ok;
-    Err : ApiError;
-};
-
-type HttpRequest = record {
-    method : text;
-    url : text;
-    headers : vec record { text; text; };
-    body : blob;
-};
-
-type HttpResponse = record {
-    status_code : nat16;
-    headers : vec record { text; text; };
-    body : blob;
-};
-
+type Result = variant { Ok; Err : Error };
+type Result_1 = variant { Ok : nat; Err : Error };
+type Result_2 = variant { Ok : MintResult; Err : ConstrainedError };
+type Result_3 = variant { Ok : principal; Err : Error };
+type SaleInfo = record { bids : vec Bid; seller : principal; price : nat64 };
 service : (InitArgs) -> {
-    balanceOfDip721 : (user : principal) -> (nat64) query;
-    ownerOfDip721 : (token_id : nat64) -> (OwnerResult) query;
-    safeTransferFromDip721 : (from : principal, to : principal, token_id : nat64) -> (TxReceipt);
-    transferFromDip721 : (from : principal, to : principal, token_id : nat64) -> (TxReceipt);
-    supportedInterfacesDip721 : () -> (vec InterfaceId) query;
-    logoDip721 : () -> (LogoResult) query;
-    nameDip721 : () -> (text) query;
-    symbolDip721 : () -> (text) query;
-    totalSupplyDip721 : () -> (nat64) query;
-    getMetadataDip721 : (token_id : nat64) -> (MetadataResult) query;
-    getMetdataForUserDip721 : (user : principal) -> (vec ExtendedMetadataResult); 
-    safeTransferFromNotifyDip721 : (from : principal, to : principal, token_id : nat64, data : vec nat8) -> (TxReceipt);
-    transferFromNotifyDip721 : (from : principal, to : principal, token_id : nat64, data : vec nat8) -> (TxReceipt);
-    approveDip721 : (user : principal, token_id : nat64) -> (TxReceipt) /*query*/;
-    setApprovalForAllDip721 : (operator : principal, isApproved : bool) -> (TxReceipt);
-    getApprovedDip721 : (token_id : nat64) -> (TxReceipt) query;
-    isApprovedForAllDip721 : (operator : principal) -> (bool) query;
-    mintDip721 : (to : principal, metadata : MetadataDesc, blobContent : blob) -> (MintReceipt);
-    burnDip721 : (token_id : nat64) -> (TxReceipt);
-
-    set_name : (name : text) -> (ManageResult);
-    set_symbol : (sym : text) -> (ManageResult);
-    set_logo : (logo : opt LogoResult) -> (ManageResult);
-    set_custodian : (user : principal, custodian : bool) -> (ManageResult);
-    is_custodian : (principal) -> (bool) query;
-    http_request : (HttpRequest) -> (HttpResponse) query;
+  __get_candid_interface_tmp_hack : () -> (text) query;
+  acceptBid : (nat64, principal) -> (Result);
+  approveDip721 : (principal, nat64) -> (Result_1);
+  balanceOfDip721 : (principal) -> (nat64) query;
+  burnDip721 : (nat64) -> (Result_1);
+  buyNFT : (nat64) -> (Result);
+  deposit : (nat64) -> (Result);
+  getBidsByBidder : (principal) -> (vec record { nat64; Bid }) query;
+  getBidsByNFT : (nat64) -> (opt vec Bid) query;
+  getSaleInfo : (nat64) -> (opt SaleInfo) query;
+  getTokensForSale : () -> (vec record { nat64; SaleInfo }) query;
+  isApprovedForAllDip721 : (principal) -> (bool) query;
+  is_custodian : (principal) -> (bool) query;
+  listAllNftsFull : () -> (vec Nft) query;
+  mintDip721 : (principal, vec MetadataPart, vec nat8) -> (Result_2);
+  nameDip721 : () -> (text) query;
+  ownerOfDip721 : (nat64) -> (Result_3) query;
+  placeBid : (nat64, nat64) -> (Result);
+  putForSale : (nat64, nat64) -> (Result);
+  removeBid : (nat64, principal) -> (Result);
+  removeFromSale : (nat64) -> (Result);
+  safeTransferFromDip721 : (principal, principal, nat64) -> (Result_1);
+  safeTransferFromNotifyDip721 : (principal, principal, nat64, vec nat8) -> (
+      Result_1,
+    );
+  setApprovalForAllDip721 : (principal, bool) -> (Result_1);
+  set_custodian : (principal, bool) -> (Result);
+  set_logo : (opt LogoResult) -> (Result);
+  set_name : (text) -> (Result);
+  set_symbol : (text) -> (Result);
+  supportedInterfacesDip721 : () -> (vec InterfaceId) query;
+  symbolDip721 : () -> (text) query;
+  totalSupplyDip721 : () -> (nat64) query;
+  transferFromDip721 : (principal, principal, nat64) -> (Result_1);
+  transferFromNotifyDip721 : (principal, principal, nat64, vec nat8) -> (
+      Result_1,
+    );
+  updateSalePrice : (nat64, nat64) -> (Result);
+  withdraw : (nat64) -> (Result);
+  withdrawBid : (nat64) -> (Result);
 }
