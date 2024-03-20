@@ -1,0 +1,11 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/libstring_cache-af0e1b2c47301e85.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/atom.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/dynamic_set.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/static_sets.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/trivial_impls.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/libstring_cache-af0e1b2c47301e85.rlib: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/atom.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/dynamic_set.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/static_sets.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/trivial_impls.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/string_cache-af0e1b2c47301e85.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/atom.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/dynamic_set.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/static_sets.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/trivial_impls.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/atom.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/dynamic_set.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/static_sets.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/string_cache-0.8.7/src/trivial_impls.rs:

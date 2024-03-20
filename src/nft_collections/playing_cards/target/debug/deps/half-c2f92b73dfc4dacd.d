@@ -1,0 +1,12 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/libhalf-c2f92b73dfc4dacd.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/slice.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/libhalf-c2f92b73dfc4dacd.rlib: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/slice.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/half-c2f92b73dfc4dacd.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16/convert.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/slice.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/bfloat/convert.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/binary16/convert.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-1.8.3/src/slice.rs:

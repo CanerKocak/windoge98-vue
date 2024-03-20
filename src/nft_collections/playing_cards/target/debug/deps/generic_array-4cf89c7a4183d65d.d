@@ -1,0 +1,11 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/libgeneric_array-4cf89c7a4183d65d.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/hex.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/impls.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/arr.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/functional.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/iter.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/sequence.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/generic_array-4cf89c7a4183d65d.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/hex.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/impls.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/arr.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/functional.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/iter.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/sequence.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/hex.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/impls.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/arr.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/functional.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/iter.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/generic-array-0.14.7/src/sequence.rs:

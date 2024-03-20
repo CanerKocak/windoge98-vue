@@ -1,0 +1,10 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/libserde_tokenstream-ace37fd3f6a1228f.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ibidem.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ordered_map.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/serde_tokenstream.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/libserde_tokenstream-ace37fd3f6a1228f.rlib: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ibidem.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ordered_map.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/serde_tokenstream.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/release/deps/serde_tokenstream-ace37fd3f6a1228f.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ibidem.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ordered_map.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/serde_tokenstream.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ibidem.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/ordered_map.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/serde_tokenstream-0.1.7/src/serde_tokenstream.rs:

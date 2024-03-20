@@ -1,0 +1,13 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/libsha2-9184afd2b542e344.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/core_api.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/consts.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/soft.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/x86.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/soft.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/x86.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/sha2-9184afd2b542e344.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/core_api.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/consts.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/soft.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/x86.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/soft.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/x86.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/core_api.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/consts.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/soft.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha256/x86.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/soft.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-0.10.8/src/sha512/x86.rs:

@@ -1,0 +1,11 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/wasm32-unknown-unknown/release/deps/libcrc32fast-61c47326a4ca2e33.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/baseline.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/combine.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/specialized/mod.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/table.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/wasm32-unknown-unknown/release/deps/libcrc32fast-61c47326a4ca2e33.rlib: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/baseline.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/combine.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/specialized/mod.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/table.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/wasm32-unknown-unknown/release/deps/crc32fast-61c47326a4ca2e33.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/baseline.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/combine.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/specialized/mod.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/table.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/baseline.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/combine.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/specialized/mod.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/crc32fast-1.4.0/src/table.rs:

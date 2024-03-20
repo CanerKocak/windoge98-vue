@@ -1,0 +1,8 @@
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/liblogos-5c172c0d29bb6599.rmeta: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lexer.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/source.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/internal.rs
+
+/home/caner/windoge98-vue/src/nft_collections/playing_cards/target/debug/deps/logos-5c172c0d29bb6599.d: /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lib.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lexer.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/source.rs /home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/internal.rs
+
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lib.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/lexer.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/source.rs:
+/home/caner/.cargo/registry/src/index.crates.io-6f17d22bba15001f/logos-0.12.1/src/internal.rs:
